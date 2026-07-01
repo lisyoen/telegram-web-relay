@@ -34,32 +34,34 @@ jobs:
               return;
             }
 
-            const body = `${marker}
-            Thanks for opening this issue.
-
-            This repository uses an automated issue responder so new reports do not sit unattended.
-
-            Please make sure the issue includes:
-            - What you expected to happen
-            - What actually happened
-            - Reproduction steps or logs, if this is a bug
-            - Your Node.js, Docker, and TDLib environment, if relevant
-
-            Maintainers can add \`ai-candidate\` when the issue is a good fit for an automated coding agent.
-
-            ---
-
-            이슈를 열어줘서 고마워요.
-
-            이 저장소는 새 이슈가 방치되지 않도록 자동 응답 봇을 사용합니다.
-
-            가능하면 아래 정보를 같이 적어주세요:
-            - 기대한 동작
-            - 실제 동작
-            - 버그라면 재현 절차나 로그
-            - 관련 있다면 Node.js, Docker, TDLib 환경
-
-            관리자는 자동 코딩 에이전트가 처리하기 좋은 이슈에 \`ai-candidate\` 라벨을 붙일 수 있습니다.`;
+            const body = [
+              marker,
+              'Thanks for opening this issue.',
+              '',
+              'This repository uses an automated issue responder so new reports do not sit unattended.',
+              '',
+              'Please make sure the issue includes:',
+              '- What you expected to happen',
+              '- What actually happened',
+              '- Reproduction steps or logs, if this is a bug',
+              '- Your Node.js, Docker, and TDLib environment, if relevant',
+              '',
+              'Maintainers can add `ai-candidate` when the issue is a good fit for an automated coding agent.',
+              '',
+              '---',
+              '',
+              '이슈를 열어줘서 고마워요.',
+              '',
+              '이 저장소는 새 이슈가 방치되지 않도록 자동 응답 봇을 사용합니다.',
+              '',
+              '가능하면 아래 정보를 같이 적어주세요:',
+              '- 기대한 동작',
+              '- 실제 동작',
+              '- 버그라면 재현 절차나 로그',
+              '- 관련 있다면 Node.js, Docker, TDLib 환경',
+              '',
+              '관리자는 자동 코딩 에이전트가 처리하기 좋은 이슈에 `ai-candidate` 라벨을 붙일 수 있습니다.',
+            ].join('\n');
 
             await github.rest.issues.createComment({
               owner,
