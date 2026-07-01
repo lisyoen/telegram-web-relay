@@ -1,0 +1,17 @@
+node_modules/
+db/
+tdlib-db/
+tdlib-files/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+.env
+sessions/
+uploads/
+*.log
+.backups/
+public/index.html.bak.*
+.tmp/
+.tmp-*
+tmp_*
+ecosystem.config.js

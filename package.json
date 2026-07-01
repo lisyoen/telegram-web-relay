@@ -1,0 +1,26 @@
+{
+  "name": "telegram-web-relay",
+  "version": "0.1.0",
+  "description": "Self-hosted Telegram web client relay (TDLib-based server).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.8.0",
+    "express": "^4.18.2",
+    "express-session": "^1.18.0",
+    "prebuilt-tdlib": "^0.1008065.0",
+    "socket.io": "^4.7.2",
+    "tdl": "^8.0.2"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.3"
+  },
+  "license": "MIT",
+  "author": "ChangYeon Lee",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lisyoen/telegram-web-relay"
+  }
+}

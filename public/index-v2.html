@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram Web v2</title>
+  <link rel="stylesheet" href="/telegram-tt-main.css">
+  <link rel="stylesheet" href="/telegram-tt-icons.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--color-background, #fff);
+      color: var(--color-text, #000);
+      overflow: hidden;
+    }
+
+    /* 레이아웃: telegram-tt 참조 */
+    #Main {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+      position: relative;
+    }
+
+    /* LeftColumn: telegram-tt-ref/src/components/left/LeftColumn.scss 참조 */
+    #LeftColumn {
+      width: 420px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--color-background, #fff);
+      border-right: 1px solid var(--color-borders, #dadada);
+    }
+
+    /* left-header: telegram-tt-ref 참조 */
+    .left-header {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      height: var(--header-height, 3.5rem);
+      padding: 0.375rem 0.8125rem 0.5rem 0.8125rem;
+      background-color: var(--color-background, #fff);
+    }
+
+    .left-header h3 {
+      user-select: none;
+      overflow: hidden;
+      margin-right: auto;
+      margin-bottom: 0;
+      margin-left: 1.375rem;
+      font-size: 1.25rem;
+      font-weight: var(--font-weight-medium, 500);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* chat-list: telegram-tt-ref/src/components/left/main/ChatList.tsx 참조 */
+    .chat-list {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* Chat: telegram-tt-ref/src/components/left/main/Chat.scss 참조 */
+    .Chat {
+      position: relative;
+      width: 100%;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .Chat:hover {
+      background-color: var(--color-chat-hover, rgba(0, 0, 0, 0.04));
+    }
+
+    .Chat.selected {
+      background-color: var(--color-primary, #3390ec);
+      color: #fff;
+    }
+
+    .Chat .ListItem-button {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 0.5rem 0.8125rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+      position: relative;
+    }
+
+    /* Avatar: telegram-tt-ref/src/components/common/Avatar.scss 참조 */
+    .Avatar {
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-primary, #3390ec);
+      color: #fff;
+      font-weight: 500;
+      font-size: 1rem;
+      overflow: hidden;
+      margin-right: 0.625rem;
+    }
+
+    .Avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .chat-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-title {
+      font-size: 1rem;
+      font-weight: var(--font-weight-medium, 500);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-bottom: 0.125rem;
+    }
+
+    .last-message {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary, #707579);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+    }
+
+    /* DotAnimation: telegram-tt-ref/src/components/common/DotAnimation.scss 참조 */
+    .DotAnimation {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .DotAnimation .ellipsis {
+      overflow: hidden;
+      display: flex;
+      width: 1rem;
+    }
+
+    .DotAnimation .ellipsis::after {
+      content: "...";
+      animation: dot-animation 1s steps(4, start) infinite;
+    }
+
+    @keyframes dot-animation {
+      from {
+        transform: translateX(-1rem);
+      }
+    }
+
+    .chat-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      margin-left: 0.5rem;
+    }
+
+    .chat-time {
+      font-size: 0.75rem;
+      color: var(--color-text-meta, #a2acb0);
+      margin-bottom: 0.25rem;
+    }
+
+    .unread-badge {
+      background: var(--color-primary, #3390ec);
+      color: #fff;
+      border-radius: 0.625rem;
+      padding: 0.125rem 0.4375rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      min-width: 1.25rem;
+      text-align: center;
+    }
+
+    /* MiddleColumn: telegram-tt-ref/src/components/middle/MiddleColumn.scss 참조 */
+    #MiddleColumn {
+      flex: 1;
+      min-width: 0; /* flex 자식 overflow 방지 */
+      display: flex;
+      flex-direction: column;
+      background: var(--color-background, #fff);
+      position: relative;
+    }
+
+    .middle-header {
+      display: flex;
+      align-items: center;
+      height: var(--header-height, 3.5rem);
+      padding: 0 1rem;
+      background: var(--color-background, #fff);
+      border-bottom: 1px solid var(--color-borders, #dadada);
+    }
+
+    .middle-header .Avatar {
+      margin-right: 0.75rem;
+    }
+
+    .chat-info-header {
+      flex: 1;
+    }
+
+    .chat-info-header .chat-title {
+      font-size: 1.125rem;
+      margin-bottom: 0;
+    }
+
+    .chat-status {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary, #707579);
+    }
+
+    /* MessageList: telegram-tt-ref 참조 */
+    .MessageList {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      background: var(--color-background, #fff);
+    }
+
+    /* Message: telegram-tt-ref/src/components/middle/message/Message.scss 참조 */
+    .Message {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 0.375rem;
+      max-width: 29rem;
+    }
+
+    .Message.own {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .Message:not(.own) {
+      padding-left: 2.5rem;
+    }
+
+    .Message > .Avatar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      margin-right: 0.3125rem;
+    }
+
+    .message-content-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message-sender-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--color-primary, #3390ec);
+      margin-bottom: 0.25rem;
+      padding-left: 0.75rem;
+    }
+
+    .message-content {
+      background: var(--color-background-secondary, #fff);
+      border-radius: var(--border-radius-messages, 0.75rem);
+      padding: 0.5rem 0.75rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .Message.own .message-content {
+      background: var(--color-primary, #3390ec);
+      color: #fff;
+    }
+
+    /* 답장 인용: telegram-tt-ref EmbeddedMessage 참조 */
+    .message-reply {
+      border-left: 2px solid var(--color-primary, #3390ec);
+      padding-left: 0.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--color-text-secondary, #707579);
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .message-reply:hover {
+      background-color: var(--color-reply-hover, rgba(0, 0, 0, 0.04));
+    }
+
+    .message-reply-name {
+      font-weight: 500;
+      color: var(--color-primary, #3390ec);
+    }
+
+    /* 전달 메시지 정보 */
+    .message-forward-info {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary, #707579);
+      margin-bottom: 0.5rem;
+      font-style: italic;
+    }
+
+    /* 날짜 구분선 */
+    .date-separator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1rem 0;
+      color: var(--color-text-secondary, #707579);
+      font-size: 0.875rem;
+    }
+
+    .date-separator span {
+      background: var(--color-background-secondary, #f4f4f5);
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+    }
+
+    /* 메시지 하이라이트 (답장 클릭 시) */
+    .Message.focused .message-content {
+      background: var(--color-background-selected, #e3f2fd) !important;
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    /* 컨텍스트 메뉴 */
+    .context-menu {
+      background: var(--color-background, #fff);
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      min-width: 10rem;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .context-menu-item {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background-color 0.15s;
+    }
+
+    .context-menu-item:hover {
+      background: var(--color-chat-hover, rgba(0, 0, 0, 0.04));
+    }
+
+    /* 답장 프리뷰: telegram-tt ComposerEmbeddedMessage.scss + EmbeddedMessage.scss 포팅 */
+    .ComposerEmbeddedMessage {
+      --accent-color: var(--color-primary, #3390ec);
+      height: 3.125rem;
+      transition: height 150ms ease-out, opacity 150ms ease-out;
+      overflow: hidden;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .ComposerEmbeddedMessage_inner {
+      display: flex;
+      align-items: center;
+      padding-top: 0.5rem;
+      height: 100%;
+      width: 100%;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    /* 좌측 아이콘 (답장/편집) */
+    .ComposerEmbeddedMessage .embedded-left-icon {
+      position: relative;
+      display: grid;
+      flex-shrink: 0;
+      place-content: center;
+      height: 2.625rem;
+      padding: 0.5625rem 0.75rem 0.5625rem 1rem;
+      font-size: 1.5rem;
+      color: var(--accent-color);
+      background: none !important;
+    }
+
+    /* EmbeddedMessage (내부 콘텐츠) — telegram-tt EmbeddedMessage.scss 포팅 */
+    .EmbeddedMessage {
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.0625rem;
+      padding-block: 0.1875rem;
+      border-radius: var(--border-radius-messages-small, 0.375rem);
+      font-size: 0.875rem;
+      line-height: 1.125rem;
+      color: var(--color-text, #000);
+      background-color: var(--color-background-secondary, #f4f4f5);
+      flex-grow: 1;
+      min-width: 0;
+    }
+
+    .EmbeddedMessage.inside-input {
+      flex-grow: 1;
+      margin: 0;
+      border-radius: 0.25rem;
+    }
+
+    /* PeerColorWrapper — 좌측 컬러 바 */
+    .EmbeddedMessage .PeerColorWrapper {
+      display: flex;
+      align-items: stretch;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .EmbeddedMessage .PeerColorWrapper::before {
+      content: '';
+      width: 2px;
+      flex-shrink: 0;
+      background: var(--accent-color);
+      border-radius: 1px;
+      margin-right: 0.5rem;
+    }
+
+    /* message-text 영역 */
+    .EmbeddedMessage .message-text {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .EmbeddedMessage .message-title {
+      font-size: 0.875rem;
+      font-weight: var(--font-weight-medium, 500);
+      color: var(--accent-color);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .EmbeddedMessage .embedded-text-wrapper {
+      overflow: hidden;
+      height: 1.125rem;
+      margin-bottom: 0;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--color-text-secondary, #707579);
+    }
+
+    /* 닫기 버튼 */
+    .ComposerEmbeddedMessage .embedded-cancel {
+      flex-shrink: 0;
+      align-self: center;
+      width: auto;
+      height: 1.5rem;
+      margin: 0.5625rem 1rem 0.5625rem 0.75rem;
+      padding: 0;
+      color: var(--accent-color);
+      background: none !important;
+      border: none;
+      cursor: pointer;
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .ComposerEmbeddedMessage .embedded-cancel:hover {
+      opacity: 0.7;
+    }
+
+    /* 메시지 미디어 */
+    .message-media {
+      margin-bottom: 0.5rem;
+    }
+
+    .message-file {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: var(--color-background-secondary, #f4f4f5);
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .message-file:hover {
+      background: var(--color-chat-hover, rgba(0, 0, 0, 0.04));
+    }
+
+    .file-icon {
+      font-size: 2rem;
+    }
+
+    .file-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .file-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-size {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary, #707579);
+    }
+
+    /* 편집됨 표시 */
+    .message-edited {
+      font-size: 0.75rem;
+      color: var(--color-text-meta, #a2acb0);
+      font-style: italic;
+    }
+
+    /* 로딩 인디케이터 */
+    .loading-indicator {
+      text-align: center;
+      padding: 1rem;
+      color: var(--color-text-secondary, #707579);
+      font-size: 0.875rem;
+    }
+
+    /* 드래그 오버 효과 */
+    .Composer.drag-over {
+      background: var(--color-background-selected, #e3f2fd);
+    }
+
+    .message-text {
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.3125rem;
+    }
+
+    .message-meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--color-text-meta, #a2acb0);
+    }
+
+    .Message.own .message-meta {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .message-time {
+      white-space: nowrap;
+    }
+
+    /* 읽음 체크: MessageOutgoingStatus 참조 */
+    /* MessageOutgoingStatus: telegram-tt MessageOutgoingStatus.scss 포팅 */
+    .MessageOutgoingStatus {
+      overflow: hidden;
+      display: inline-block;
+      width: 1.1875rem;
+      height: 1.1875rem;
+      font-size: 1.1875rem;
+      line-height: 1;
+      vertical-align: middle;
+    }
+
+    .MessageOutgoingStatus .icon-message-succeeded {
+      padding-left: 0.125rem;
+    }
+
+    .message-status {
+      display: flex;
+      align-items: center;
+    }
+
+    .message-status svg {
+      width: 1rem;
+      height: 1rem;
+      fill: currentColor;
+    }
+
+    /* Composer: telegram-tt-ref/src/components/common/Composer.tsx 참조 */
+    .Composer {
+      display: flex;
+      flex-direction: column;
+      background: var(--color-background, #fff);
+      border-top: 1px solid var(--color-borders, #dadada);
+      width: 100%;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .Composer .composer-input-row {
+      display: flex;
+      align-items: flex-end;
+      padding: 0.75rem 1rem;
+      gap: 0.5rem;
+    }
+
+    .message-input-wrapper {
+      flex: 1;
+      background: var(--color-background-secondary, #f4f4f5);
+      border-radius: 1.375rem;
+      padding: 0.5rem 1rem;
+      max-height: 7.5rem;
+      overflow-y: auto;
+    }
+
+    #messageInput {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 0.9375rem;
+      resize: none;
+      min-height: 1.5rem;
+      max-height: 6rem;
+      font-family: inherit;
+      line-height: 1.5rem;
+    }
+
+    .send-button {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: var(--color-primary, #3390ec);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s;
+    }
+
+    .send-button:hover {
+      background: var(--color-primary-shade, #2b7cd3);
+    }
+
+    .send-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* 스크롤바 스타일 */
+    .chat-list::-webkit-scrollbar,
+    .MessageList::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-list::-webkit-scrollbar-thumb,
+    .MessageList::-webkit-scrollbar-thumb {
+      background: var(--color-scrollbar, rgba(0, 0, 0, 0.2));
+      border-radius: 3px;
+    }
+
+    .chat-list::-webkit-scrollbar-track,
+    .MessageList::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <div id="Main">
+    <!-- LeftColumn: telegram-tt-ref/src/components/left/LeftColumn.tsx 참조 -->
+    <div id="LeftColumn">
+      <div class="left-header">
+        <h3>Telegram</h3>
+      </div>
+      <div class="chat-list" id="chatList">
+        <!-- 채팅 목록이 여기에 동적으로 렌더링됩니다 -->
+      </div>
+    </div>
+
+    <!-- MiddleColumn: telegram-tt-ref/src/components/middle/MiddleColumn.tsx 참조 -->
+    <div id="MiddleColumn">
+      <div class="middle-header" id="middleHeader" style="display: none;">
+        <div class="Avatar" id="chatAvatar"></div>
+        <div class="chat-info-header">
+          <div class="chat-title" id="chatTitle"></div>
+          <div class="chat-status" id="chatStatus"></div>
+        </div>
+      </div>
+
+      <div class="MessageList" id="messageList">
+        <!-- 메시지가 여기에 동적으로 렌더링됩니다 -->
+      </div>
+
+      <div class="Composer" id="composer" style="display: none;">
+        <!-- ComposerEmbeddedMessage (답장/편집 프리뷰)가 여기 앞에 동적 삽입됨 -->
+        <div class="composer-input-row">
+          <div class="message-input-wrapper">
+            <textarea id="messageInput" placeholder="메시지 입력..." rows="1"></textarea>
+          </div>
+          <button class="send-button" id="sendButton">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // Socket.io 연결: server.js 이벤트 참조
+    // WebSocket 실패 시 polling 폴백 — Cloudflare 프록시 환경 대응
+    const socket = io({ transports: ['polling', 'websocket'], upgrade: true });
+
+    let currentChatId = null;
+    let currentChatType = 'private'; // private, basicGroup, supergroup, channel
+    let drafts = {}; // chatId -> draft text
+    let typingTimeouts = {};
+    let replyingTo = null; // { id, senderName, text } 답장 대상
+    let editingMessageId = null; // 편집 중인 메시지 ID
+    let forwardingMessage = null; // { fromChatId, messageId } 전달 중인 메시지
+    let messageCache = {}; // chatId -> { messages: [], oldestMessageId }
+    let isLoadingHistory = false;
+
+    // 페이지 로드 시 채팅 목록 요청
+    socket.emit('getChats');
+
+    // 채팅 목록 수신
+    socket.on('chats', (chats) => {
+      renderChats(chats);
+    });
+
+    // 새 메시지 수신 (TDLib message 원본)
+    socket.on('newMessage', (message) => {
+      // TDLib 구조 파싱
+      const parsedMsg = parseTDLibMessage(message);
+      if (parsedMsg.chatId === currentChatId) {
+        appendMessage(parsedMsg);
+        scrollToBottom();
+
+        // 캐시에 추가
+        if (messageCache[parsedMsg.chatId]) {
+          messageCache[parsedMsg.chatId].messages.push(parsedMsg);
+        }
+      }
+      // 채팅 목록 갱신
+      socket.emit('getChats');
+    });
+
+    // 메시지 목록 수신
+    socket.on('messages', (data) => {
+      const { chatId, messages, isHistory, chatType } = data;
+      if (chatId === currentChatId) {
+        currentChatType = chatType || 'private';
+
+        // TDLib 구조 파싱
+        const parsedMessages = messages.map(parseTDLibMessage);
+
+        if (isHistory) {
+          // 히스토리 로드 시 위쪽에 추가
+          prependMessages(parsedMessages);
+          isLoadingHistory = false;
+        } else {
+          // 초기 로드
+          renderMessages(parsedMessages);
+          scrollToBottom();
+
+          // 캐시 초기화
+          messageCache[chatId] = {
+            messages: parsedMessages,
+            oldestMessageId: parsedMessages.length > 0 ? parsedMessages[0].id : 0
+          };
+        }
+      }
+    });
+
+    // 입력중 상태 수신: telegram-tt-ref DotAnimation 참조
+    socket.on('chatAction', (data) => {
+      const { chatId, action, userName } = data;
+      if (chatId === currentChatId && action?._ === 'chatActionTyping') {
+        showTypingIndicator(userName);
+      }
+    });
+
+    // 메시지 삭제 수신
+    socket.on('messageDeleted', (data) => {
+      const { chatId, messageId } = data;
+      if (chatId === currentChatId) {
+        removeMessageFromUI(messageId);
+      }
+    });
+
+    // 메시지 편집 수신
+    socket.on('messageEdited', (data) => {
+      const { chatId, messageId, text } = data;
+      if (chatId === currentChatId) {
+        updateMessageInUI(messageId, text);
+      }
+    });
+
+    // 답장 원글 이동용 메시지 로드
+    socket.on('messagesAround', (data) => {
+      const { chatId, messages, targetMessageId } = data;
+      if (chatId === currentChatId) {
+        const parsedMessages = messages.map(parseTDLibMessage);
+        renderMessages(parsedMessages);
+
+        // 타겟 메시지로 스크롤 및 하이라이트
+        setTimeout(() => {
+          focusMessage(targetMessageId);
+        }, 100);
+      }
+    });
+
+    // TDLib 메시지 파싱: server.js의 TDLib 원본 구조 변환
+    function parseTDLibMessage(msg) {
+      return {
+        id: msg.id,
+        chatId: msg.chat_id,
+        isOutgoing: msg.is_outgoing || false,
+        date: msg.date,
+        timestamp: msg.date * 1000,
+        text: msg.content?.text?.text || msg.content?.caption?.text || '',
+        senderId: msg.sender_id?.user_id,
+        senderName: msg._senderName || (msg.is_outgoing ? '나' : '상대방'),
+        replyTo: msg._replyTo, // server.js가 이미 파싱해줌
+        content: msg.content,
+        isRead: false, // 추후 chatInfo 이벤트에서 업데이트
+        forwardFrom: msg._forwardFrom,
+        imageData: msg._imageData,
+        raw: msg // 원본 보관
+      };
+    }
+
+    // 채팅 목록 렌더링: telegram-tt-ref/src/components/left/main/Chat.tsx 참조
+    function renderChats(chats) {
+      const chatList = document.getElementById('chatList');
+      chatList.innerHTML = '';
+
+      chats.forEach(chat => {
+        const chatEl = document.createElement('div');
+        chatEl.className = 'Chat';
+        if (chat.id === currentChatId) {
+          chatEl.classList.add('selected');
+        }
+
+        const button = document.createElement('div');
+        button.className = 'ListItem-button';
+
+        // Avatar: telegram-tt-ref/src/components/common/Avatar.tsx 참조
+        const avatar = document.createElement('div');
+        avatar.className = 'Avatar';
+        if (chat._avatarData) {
+          const img = document.createElement('img');
+          img.src = chat._avatarData;
+          avatar.appendChild(img);
+        } else {
+          avatar.textContent = getInitials(chat.title);
+        }
+
+        const info = document.createElement('div');
+        info.className = 'chat-info';
+
+        const title = document.createElement('div');
+        title.className = 'chat-title';
+        title.textContent = chat.title;
+
+        const lastMsg = document.createElement('div');
+        lastMsg.className = 'last-message';
+        const lastMsgText = chat.last_message?.content?.text?.text
+          || chat.last_message?.content?.caption?.text
+          || getContentTypeLabel(chat.last_message?.content?._)
+          || '';
+        lastMsg.textContent = lastMsgText.substring(0, 50);
+
+        info.appendChild(title);
+        info.appendChild(lastMsg);
+
+        const meta = document.createElement('div');
+        meta.className = 'chat-meta';
+
+        if (chat.last_message?.date) {
+          const time = document.createElement('div');
+          time.className = 'chat-time';
+          time.textContent = formatTime(chat.last_message.date * 1000);
+          meta.appendChild(time);
+        }
+
+        if (chat._unreadCount > 0) {
+          const badge = document.createElement('div');
+          badge.className = 'unread-badge';
+          badge.textContent = chat._unreadCount;
+          meta.appendChild(badge);
+        }
+
+        button.appendChild(avatar);
+        button.appendChild(info);
+        button.appendChild(meta);
+        chatEl.appendChild(button);
+
+        chatEl.addEventListener('click', () => {
+          openChat(chat.id, chat.title, chat._avatarData, chat.type?._);
+        });
+
+        chatList.appendChild(chatEl);
+      });
+    }
+
+    // 콘텐츠 타입 라벨
+    function getContentTypeLabel(contentType) {
+      const labels = {
+        'messagePhoto': '사진',
+        'messageVideo': '동영상',
+        'messageDocument': '파일',
+        'messageAudio': '음성',
+        'messageVoiceNote': '음성 메시지',
+        'messageSticker': '스티커',
+        'messageAnimation': 'GIF',
+        'messageLocation': '위치',
+        'messageContact': '연락처',
+        'messagePoll': '투표',
+      };
+      return labels[contentType] || '';
+    }
+
+    // 채팅 열기
+    function openChat(chatId, title, photo, chatType) {
+      // 이전 채팅 draft 저장
+      if (currentChatId) {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+        if (text) {
+          drafts[currentChatId] = text;
+        } else {
+          delete drafts[currentChatId];
+        }
+      }
+
+      currentChatId = chatId;
+      currentChatType = chatType || 'private';
+      replyingTo = null;
+      editingMessageId = null;
+      forwardingMessage = null;
+
+      // 헤더 업데이트
+      document.getElementById('middleHeader').style.display = 'flex';
+      document.getElementById('composer').style.display = 'flex';
+      document.getElementById('chatTitle').textContent = title;
+
+      const chatAvatar = document.getElementById('chatAvatar');
+      chatAvatar.innerHTML = '';
+      if (photo) {
+        const img = document.createElement('img');
+        img.src = photo;
+        chatAvatar.appendChild(img);
+      } else {
+        chatAvatar.textContent = getInitials(title);
+      }
+
+      // Draft 복원
+      const input = document.getElementById('messageInput');
+      input.value = drafts[chatId] || '';
+
+      // 답장 프리뷰 숨기기
+      hideReplyPreview();
+
+      // 선택 상태 업데이트
+      document.querySelectorAll('.Chat').forEach(el => {
+        el.classList.remove('selected');
+        if (el.querySelector('.ListItem-button')) {
+          const btn = el.querySelector('.ListItem-button');
+          btn.parentElement.id === `chat-${chatId}` && el.classList.add('selected');
+        }
+      });
+
+      // 메시지 요청
+      socket.emit('getMessages', { chatId, limit: 50, fromMessageId: 0, isHistory: false });
+    }
+
+    // 메시지 렌더링: telegram-tt-ref/src/components/middle/message/Message.tsx 참조
+    function renderMessages(messages) {
+      const messageList = document.getElementById('messageList');
+      messageList.innerHTML = '';
+
+      let lastDate = null;
+      messages.forEach((msg, idx) => {
+        // 날짜 구분선 추가
+        const msgDate = new Date(msg.timestamp).toLocaleDateString();
+        if (msgDate !== lastDate) {
+          appendDateSeparator(msgDate);
+          lastDate = msgDate;
+        }
+
+        appendMessage(msg);
+      });
+    }
+
+    // 날짜 구분선 추가
+    function appendDateSeparator(dateStr) {
+      const messageList = document.getElementById('messageList');
+      const separator = document.createElement('div');
+      separator.className = 'date-separator';
+      separator.innerHTML = `<span>${dateStr}</span>`;
+      messageList.appendChild(separator);
+    }
+
+    function appendMessage(msg) {
+      const messageList = document.getElementById('messageList');
+
+      const msgEl = document.createElement('div');
+      msgEl.className = 'Message';
+      msgEl.dataset.messageId = msg.id;
+      if (msg.isOutgoing) {
+        msgEl.classList.add('own');
+      }
+
+      // 그룹 채팅이면서 incoming 메시지일 때만 Avatar 표시
+      const isGroup = currentChatType === 'basicGroup' || currentChatType === 'supergroup';
+      if (!msg.isOutgoing && isGroup) {
+        const avatar = document.createElement('div');
+        avatar.className = 'Avatar';
+        avatar.textContent = getInitials(msg.senderName || 'U');
+        // TODO: peer-colors 적용 (senderId 기반)
+        msgEl.appendChild(avatar);
+      }
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'message-content-wrapper';
+
+      // 발신자 이름 (그룹 채팅 incoming만)
+      if (!msg.isOutgoing && isGroup && msg.senderName) {
+        const senderName = document.createElement('div');
+        senderName.className = 'message-sender-name';
+        senderName.textContent = msg.senderName;
+        // TODO: peer-colors 적용
+        wrapper.appendChild(senderName);
+      }
+
+      const content = document.createElement('div');
+      content.className = 'message-content';
+
+      // 전달 메시지 표시
+      if (msg.forwardFrom) {
+        const fwdInfo = document.createElement('div');
+        fwdInfo.className = 'message-forward-info';
+        fwdInfo.textContent = `${msg.forwardFrom}님이 전달`;
+        content.appendChild(fwdInfo);
+      }
+
+      // 답장 인용: telegram-tt-ref EmbeddedMessage 참조
+      if (msg.replyTo) {
+        const reply = document.createElement('div');
+        reply.className = 'message-reply';
+        reply.style.cursor = 'pointer';
+        reply.dataset.replyToId = msg.replyTo.id;
+
+        const replyName = document.createElement('div');
+        replyName.className = 'message-reply-name';
+        replyName.textContent = msg.replyTo.senderName || 'User';
+        const replyText = document.createElement('div');
+        replyText.textContent = msg.replyTo.text || '[미디어]';
+        reply.appendChild(replyName);
+        reply.appendChild(replyText);
+
+        // 클릭 시 원글로 스크롤
+        reply.addEventListener('click', () => {
+          focusMessage(msg.replyTo.id);
+        });
+
+        content.appendChild(reply);
+      }
+
+      // 이미지 표시
+      if (msg.content?._ === 'messagePhoto' && msg.imageData) {
+        const imgContainer = document.createElement('div');
+        imgContainer.className = 'message-media';
+        const img = document.createElement('img');
+        img.src = msg.imageData;
+        img.style.maxWidth = '100%';
+        img.style.borderRadius = '8px';
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', () => {
+          // TODO: 이미지 뷰어 열기
+          window.open(msg.imageData, '_blank');
+        });
+        imgContainer.appendChild(img);
+        content.appendChild(imgContainer);
+      }
+
+      // 파일 표시
+      if (msg.content?._ === 'messageDocument') {
+        const doc = msg.content.document;
+        const fileEl = document.createElement('div');
+        fileEl.className = 'message-file';
+        fileEl.innerHTML = `
+          <div class="file-icon">📄</div>
+          <div class="file-info">
+            <div class="file-name">${doc?.file_name || '파일'}</div>
+            <div class="file-size">${formatFileSize(doc?.document?.expected_size || 0)}</div>
+          </div>
+        `;
+        fileEl.style.cursor = 'pointer';
+        fileEl.addEventListener('click', () => {
+          socket.emit('downloadFile', {
+            messageId: msg.id,
+            fileId: doc?.document?.id,
+            fileName: doc?.file_name || 'file'
+          });
+        });
+        content.appendChild(fileEl);
+      }
+
+      // 텍스트
+      if (msg.text) {
+        const text = document.createElement('div');
+        text.className = 'message-text';
+        text.textContent = msg.text;
+        content.appendChild(text);
+      }
+
+      const meta = document.createElement('div');
+      meta.className = 'message-meta';
+
+      const time = document.createElement('span');
+      time.className = 'message-time';
+      time.textContent = formatMessageTime(msg.timestamp);
+      meta.appendChild(time);
+
+      // 편집됨 표시
+      if (msg.raw?.edit_date) {
+        const edited = document.createElement('span');
+        edited.className = 'message-edited';
+        edited.textContent = ' (편집됨)';
+        meta.appendChild(edited);
+      }
+
+      // 읽음 체크 (outgoing만)
+      if (msg.isOutgoing) {
+        const status = document.createElement('span');
+        // telegram-tt MessageOutgoingStatus 포팅 — 아이콘 폰트 사용
+        status.className = 'MessageOutgoingStatus';
+        const iconClass = msg.isRead ? 'icon-message-read' : 'icon-message-succeeded';
+        status.innerHTML = `<i class="${iconClass}"></i>`;
+        meta.appendChild(status);
+      }
+
+      content.appendChild(meta);
+      wrapper.appendChild(content);
+      msgEl.appendChild(wrapper);
+
+      // 컨텍스트 메뉴 이벤트 (Phase 3)
+      msgEl.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        showContextMenu(e.clientX, e.clientY, msg);
+      });
+
+      // 모바일 롱탭 지원
+      let longPressTimer;
+      msgEl.addEventListener('touchstart', (e) => {
+        longPressTimer = setTimeout(() => {
+          const touch = e.touches[0];
+          showContextMenu(touch.clientX, touch.clientY, msg);
+        }, 500);
+      });
+      msgEl.addEventListener('touchend', () => {
+        clearTimeout(longPressTimer);
+      });
+      msgEl.addEventListener('touchmove', () => {
+        clearTimeout(longPressTimer);
+      });
+
+      messageList.appendChild(msgEl);
+    }
+
+    // 히스토리 메시지 위쪽에 추가
+    function prependMessages(messages) {
+      const messageList = document.getElementById('messageList');
+      const firstChild = messageList.firstChild;
+
+      messages.reverse().forEach(msg => {
+        const msgEl = createMessageElement(msg);
+        if (firstChild) {
+          messageList.insertBefore(msgEl, firstChild);
+        } else {
+          messageList.appendChild(msgEl);
+        }
+      });
+
+      // 캐시 업데이트
+      if (messageCache[currentChatId] && messages.length > 0) {
+        messageCache[currentChatId].messages.unshift(...messages);
+        messageCache[currentChatId].oldestMessageId = messages[0].id;
+      }
+    }
+
+    // 파일 크기 포맷
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    // 입력중 표시: telegram-tt-ref DotAnimation 참조
+    function showTypingIndicator(userName) {
+      const status = document.getElementById('chatStatus');
+      status.innerHTML = `<span class="DotAnimation"><span>${userName} 입력중</span><span class="ellipsis"></span></span>`;
+
+      clearTimeout(typingTimeouts[currentChatId]);
+      typingTimeouts[currentChatId] = setTimeout(() => {
+        status.textContent = '';
+      }, 3000);
+    }
+
+    // Phase 3: 컨텍스트 메뉴 (telegram-tt-ref ContextMenuContainer 참조)
+    function showContextMenu(x, y, msg) {
+      // 기존 메뉴 제거
+      const existingMenu = document.querySelector('.context-menu');
+      if (existingMenu) {
+        existingMenu.remove();
+      }
+
+      const menu = document.createElement('div');
+      menu.className = 'context-menu';
+      menu.style.position = 'fixed';
+      menu.style.left = x + 'px';
+      menu.style.top = y + 'px';
+
+      const actions = [];
+
+      // 답장
+      actions.push({
+        icon: '↩️',
+        label: '답장',
+        handler: () => {
+          setReplyingTo(msg);
+          menu.remove();
+        }
+      });
+
+      // 편집 (자신의 메시지만)
+      if (msg.isOutgoing && msg.text) {
+        actions.push({
+          icon: '✏️',
+          label: '편집',
+          handler: () => {
+            startEditingMessage(msg);
+            menu.remove();
+          }
+        });
+      }
+
+      // 전달
+      actions.push({
+        icon: '➡️',
+        label: '전달',
+        handler: () => {
+          startForwardingMessage(msg);
+          menu.remove();
+        }
+      });
+
+      // 복사
+      if (msg.text) {
+        actions.push({
+          icon: '📋',
+          label: '복사',
+          handler: () => {
+            navigator.clipboard.writeText(msg.text);
+            menu.remove();
+          }
+        });
+      }
+
+      // 삭제 (자신의 메시지만)
+      if (msg.isOutgoing) {
+        actions.push({
+          icon: '🗑️',
+          label: '삭제',
+          handler: () => {
+            if (confirm('이 메시지를 삭제하시겠습니까?')) {
+              socket.emit('deleteMessage', { chatId: msg.chatId, messageId: msg.id });
+            }
+            menu.remove();
+          }
+        });
+      }
+
+      actions.forEach(action => {
+        const item = document.createElement('div');
+        item.className = 'context-menu-item';
+        item.innerHTML = `<span>${action.icon}</span> ${action.label}`;
+        item.addEventListener('click', action.handler);
+        menu.appendChild(item);
+      });
+
+      document.body.appendChild(menu);
+
+      // 메뉴 바깥 클릭 시 닫기
+      setTimeout(() => {
+        document.addEventListener('click', function closeMenu() {
+          menu.remove();
+          document.removeEventListener('click', closeMenu);
+        });
+      }, 0);
+    }
+
+    // Phase 4: 답장 설정
+    function setReplyingTo(msg) {
+      replyingTo = {
+        id: msg.id,
+        senderName: msg.senderName,
+        text: msg.text || '[미디어]'
+      };
+      showReplyPreview();
+    }
+
+    // 답장 프리뷰 표시: telegram-tt ComposerEmbeddedMessage + EmbeddedMessage 포팅
+    function showReplyPreview() {
+      let wrapper = document.querySelector('.ComposerEmbeddedMessage');
+      if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.className = 'ComposerEmbeddedMessage';
+        const composer = document.getElementById('composer');
+        composer.insertBefore(wrapper, composer.firstChild);
+      }
+
+      const senderName = escapeHtml(replyingTo.senderName || '');
+      const previewText = escapeHtml(replyingTo.text || '[미디어]');
+
+      wrapper.innerHTML = `
+        <div class="ComposerEmbeddedMessage_inner">
+          <div class="embedded-left-icon">↩</div>
+          <div class="EmbeddedMessage inside-input">
+            <div class="PeerColorWrapper">
+              <div class="message-text">
+                <div class="message-title">${senderName}</div>
+                <div class="embedded-text-wrapper">${previewText}</div>
+              </div>
+            </div>
+          </div>
+          <button class="embedded-cancel" onclick="cancelReply()">✕</button>
+        </div>
+      `;
+    }
+
+    function hideReplyPreview() {
+      const wrapper = document.querySelector('.ComposerEmbeddedMessage');
+      if (wrapper) {
+        wrapper.remove();
+      }
+    }
+
+    function cancelReply() {
+      replyingTo = null;
+      hideReplyPreview();
+    }
+
+    // 메시지 편집 시작
+    function startEditingMessage(msg) {
+      editingMessageId = msg.id;
+      const input = document.getElementById('messageInput');
+      input.value = msg.text;
+      input.focus();
+
+      // 편집 프리뷰 표시: telegram-tt ComposerEmbeddedMessage 구조 포팅
+      let wrapper = document.querySelector('.ComposerEmbeddedMessage');
+      if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.className = 'ComposerEmbeddedMessage';
+        const composer = document.getElementById('composer');
+        composer.insertBefore(wrapper, composer.firstChild);
+      }
+
+      wrapper.innerHTML = `
+        <div class="ComposerEmbeddedMessage_inner">
+          <div class="embedded-left-icon">✏️</div>
+          <div class="EmbeddedMessage inside-input">
+            <div class="PeerColorWrapper">
+              <div class="message-text">
+                <div class="message-title">메시지 편집</div>
+                <div class="embedded-text-wrapper">${escapeHtml(msg.text || '')}</div>
+              </div>
+            </div>
+          </div>
+          <button class="embedded-cancel" onclick="cancelEdit()">✕</button>
+        </div>
+      `;
+    }
+
+    function cancelEdit() {
+      editingMessageId = null;
+      const input = document.getElementById('messageInput');
+      input.value = drafts[currentChatId] || '';
+      const wrapper = document.querySelector('.ComposerEmbeddedMessage');
+      if (wrapper) {
+        wrapper.remove();
+      }
+    }
+
+    // 전달 시작
+    function startForwardingMessage(msg) {
+      forwardingMessage = {
+        fromChatId: msg.chatId,
+        messageId: msg.id
+      };
+
+      alert('전달할 채팅을 선택하세요.');
+      // TODO: 채팅 선택 UI 개선
+    }
+
+    // 원글로 스크롤 및 하이라이트
+    function focusMessage(messageId) {
+      const msgEl = document.querySelector(`.Message[data-message-id="${messageId}"]`);
+      if (msgEl) {
+        // 이미 로드된 메시지면 바로 스크롤
+        msgEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        msgEl.classList.add('focused');
+        setTimeout(() => {
+          msgEl.classList.remove('focused');
+        }, 1500);
+      } else {
+        // 로드되지 않은 메시지면 서버에서 주변 메시지 로드
+        socket.emit('getMessagesAround', { chatId: currentChatId, messageId, limit: 40 });
+      }
+    }
+
+    // UI에서 메시지 제거
+    function removeMessageFromUI(messageId) {
+      const msgEl = document.querySelector(`.Message[data-message-id="${messageId}"]`);
+      if (msgEl) {
+        msgEl.remove();
+      }
+    }
+
+    // UI에서 메시지 업데이트
+    function updateMessageInUI(messageId, newText) {
+      const msgEl = document.querySelector(`.Message[data-message-id="${messageId}"]`);
+      if (msgEl) {
+        const textEl = msgEl.querySelector('.message-text');
+        if (textEl) {
+          textEl.textContent = newText;
+        }
+        // 편집됨 표시 추가
+        const metaEl = msgEl.querySelector('.message-meta');
+        if (metaEl && !metaEl.querySelector('.message-edited')) {
+          const edited = document.createElement('span');
+          edited.className = 'message-edited';
+          edited.textContent = ' (편집됨)';
+          metaEl.insertBefore(edited, metaEl.querySelector('.message-status'));
+        }
+      }
+    }
+
+    // 메시지 전송
+    const sendButton = document.getElementById('sendButton');
+    const messageInput = document.getElementById('messageInput');
+
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text || !currentChatId) return;
+
+      // 편집 모드
+      if (editingMessageId) {
+        socket.emit('editMessageText', {
+          chatId: currentChatId,
+          messageId: editingMessageId,
+          text
+        });
+        cancelEdit();
+      }
+      // 전달 모드
+      else if (forwardingMessage) {
+        socket.emit('forwardMessage', {
+          fromChatId: forwardingMessage.fromChatId,
+          messageId: forwardingMessage.messageId,
+          toChatId: currentChatId
+        });
+        forwardingMessage = null;
+      }
+      // 일반 전송
+      else {
+        const payload = {
+          chatId: currentChatId,
+          text
+        };
+
+        // 답장이면 replyToMessageId 추가
+        if (replyingTo) {
+          payload.replyToMessageId = replyingTo.id;
+        }
+
+        socket.emit('sendMessage', payload);
+        cancelReply();
+      }
+
+      messageInput.value = '';
+      delete drafts[currentChatId];
+      autoResize();
+    }
+
+    // Phase 4: 이미지 붙여넣기 (Ctrl+V)
+    messageInput.addEventListener('paste', async (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (item.type.indexOf('image') !== -1) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          await sendImageFile(file);
+          break;
+        }
+      }
+    });
+
+    // Phase 4: 파일 드래그앤드롭
+    const composer = document.getElementById('composer');
+    composer.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      composer.classList.add('drag-over');
+    });
+
+    composer.addEventListener('dragleave', () => {
+      composer.classList.remove('drag-over');
+    });
+
+    composer.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      composer.classList.remove('drag-over');
+
+      const files = e.dataTransfer?.files;
+      if (!files || files.length === 0) return;
+
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        await sendImageFile(file);
+      } else {
+        await sendDocumentFile(file);
+      }
+    });
+
+    // 이미지 파일 전송
+    async function sendImageFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const payload = {
+          chatId: currentChatId,
+          imageData: e.target.result,
+          caption: ''
+        };
+
+        if (replyingTo) {
+          payload.replyToMessageId = replyingTo.id;
+        }
+
+        socket.emit('sendImage', payload);
+        cancelReply();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // 문서 파일 전송
+    async function sendDocumentFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const payload = {
+          chatId: currentChatId,
+          fileData: e.target.result,
+          fileName: file.name,
+          mimeType: file.type,
+          caption: ''
+        };
+
+        if (replyingTo) {
+          payload.replyToMessageId = replyingTo.id;
+        }
+
+        socket.emit('sendFile', payload);
+        cancelReply();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Draft 저장
+    messageInput.addEventListener('input', () => {
+      if (currentChatId) {
+        const text = messageInput.value.trim();
+        if (text) {
+          drafts[currentChatId] = text;
+        } else {
+          delete drafts[currentChatId];
+        }
+
+        // 입력중 상태 전송
+        socket.emit('chatAction', {
+          chatId: currentChatId,
+          action: 'typing'
+        });
+      }
+      autoResize();
+    });
+
+    // Textarea 자동 높이 조절
+    function autoResize() {
+      messageInput.style.height = 'auto';
+      messageInput.style.height = Math.min(messageInput.scrollHeight, 96) + 'px';
+    }
+
+    // 유틸리티 함수
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function getInitials(name) {
+      if (!name) return '?';
+      const words = name.trim().split(/\s+/);
+      if (words.length === 1) return words[0].charAt(0).toUpperCase();
+      return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+    }
+
+    function formatTime(timestamp) {
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diff = now - date;
+
+      if (diff < 86400000) { // 오늘
+        return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+      } else if (diff < 604800000) { // 일주일 이내
+        return date.toLocaleDateString('ko-KR', { weekday: 'short' });
+      } else {
+        return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+      }
+    }
+
+    function formatMessageTime(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function scrollToBottom() {
+      const messageList = document.getElementById('messageList');
+      messageList.scrollTop = messageList.scrollHeight;
+    }
+
+    // Phase 6: 무한 스크롤 (위로 스크롤 시 이전 메시지 로드)
+    const messageList = document.getElementById('messageList');
+    messageList.addEventListener('scroll', () => {
+      // 최상단 근처에 도달하면 이전 메시지 로드
+      if (messageList.scrollTop < 200 && !isLoadingHistory && currentChatId) {
+        const cache = messageCache[currentChatId];
+        if (cache && cache.oldestMessageId > 0) {
+          isLoadingHistory = true;
+
+          // 로딩 인디케이터 표시
+          let loader = document.querySelector('.loading-indicator');
+          if (!loader) {
+            loader = document.createElement('div');
+            loader.className = 'loading-indicator';
+            loader.textContent = '로딩 중...';
+            messageList.insertBefore(loader, messageList.firstChild);
+          }
+
+          socket.emit('getMessages', {
+            chatId: currentChatId,
+            limit: 30,
+            fromMessageId: cache.oldestMessageId,
+            isHistory: true
+          });
+
+          // 로딩 인디케이터 제거 (2초 후)
+          setTimeout(() => {
+            if (loader) loader.remove();
+          }, 2000);
+        }
+      }
+    });
+
+    // 파일 다운로드 수신
+    socket.on('fileDownloaded', (data) => {
+      const { fileName, data: fileData } = data;
+      const a = document.createElement('a');
+      a.href = fileData;
+      a.download = fileName;
+      a.click();
+    });
+  </script>
+</body>
+</html>
