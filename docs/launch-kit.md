@@ -29,6 +29,7 @@ The idea is simple: the server owns the Telegram connection and authenticated TD
 
 Server: https://github.com/lisyoen/telegram-web-relay
 Client: https://github.com/lisyoen/telegram-web-relay-client
+Release: https://github.com/lisyoen/telegram-web-relay/releases/tag/v0.1.0
 
 It is early, but it already includes bilingual docs, PM2 examples, Docker/Compose examples, and a quickstart flow.
 ```
@@ -42,6 +43,7 @@ It runs the Telegram session on your own server and serves a browser UI that com
 
 Server: https://github.com/lisyoen/telegram-web-relay
 Client: https://github.com/lisyoen/telegram-web-relay-client
+Release: https://github.com/lisyoen/telegram-web-relay/releases/tag/v0.1.0
 
 Feedback from self-hosters and Telegram client hackers would be very welcome.
 ```
@@ -71,6 +73,7 @@ TDLib 기반 self-hosted Telegram Web relay를 오픈소스로 공개했습니�
 
 Server: https://github.com/lisyoen/telegram-web-relay
 Client: https://github.com/lisyoen/telegram-web-relay-client
+Release: https://github.com/lisyoen/telegram-web-relay/releases/tag/v0.1.0
 
 아직 초기 공개 버전이라 피드백을 받고 싶습니다. self-hosted Telegram Web, TDLib, Telegram client 구조에 관심 있는 분들께 도움이 되면 좋겠습니다.
 ```
@@ -84,4 +87,5 @@ Telegram 연결은 서버에서 처리하고, 브라우저 UI는 Socket.IO로 �
 
 https://github.com/lisyoen/telegram-web-relay
 https://github.com/lisyoen/telegram-web-relay-client
+https://github.com/lisyoen/telegram-web-relay/releases/tag/v0.1.0
 ```

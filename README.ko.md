@@ -1,5 +1,9 @@
 # telegram-web-relay
 
+[![Release](https://img.shields.io/github/v/release/lisyoen/telegram-web-relay?style=flat-square)](https://github.com/lisyoen/telegram-web-relay/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
+[![Node.js](https://img.shields.io/badge/node.js-22+-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+
 [English](./README.md) | 한국어
 
 TDLib 기반 self-hosted Telegram Web relay입니다. 텔레그램 연결은 사용자가 관리하는 서버에서 처리하고, 브라우저 UI는 HTTP와 Socket.IO로 relay 서버에만 접속합니다.
