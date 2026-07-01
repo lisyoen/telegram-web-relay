@@ -6,6 +6,8 @@ Self-hosted Telegram Web relay powered by TDLib. Run Telegram connectivity on a 
 
 This repository is the **server**. The browser UI lives in [telegram-web-relay-client](https://github.com/lisyoen/telegram-web-relay-client).
 
+![telegram-web-relay architecture](./docs/architecture.svg)
+
 ## What It Does
 
 `telegram-web-relay` signs in to Telegram on the server side with [TDLib](https://core.telegram.org/tdlib), keeps the authenticated session on that host, and exposes a browser-friendly Socket.IO API to the web client.

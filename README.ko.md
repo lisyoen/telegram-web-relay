@@ -6,6 +6,8 @@ TDLib 기반 self-hosted Telegram Web relay입니다. 텔레그램 연결은 사
 
 이 저장소는 **서버**입니다. 브라우저 UI는 [telegram-web-relay-client](https://github.com/lisyoen/telegram-web-relay-client)에 있습니다.
 
+![telegram-web-relay 구조](./docs/architecture.svg)
+
 ## 무엇을 하나요
 
 `telegram-web-relay`는 서버 측에서 [TDLib](https://core.telegram.org/tdlib)로 텔레그램에 로그인하고, 인증된 세션을 해당 호스트에 유지한 뒤, 브라우저 클라이언트가 사용할 수 있는 Socket.IO API를 제공합니다.
