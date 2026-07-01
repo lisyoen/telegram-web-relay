@@ -21,6 +21,12 @@ jobs:
             const marker = '<!-- telegram-web-relay issue responder v1 -->';
             const { owner, repo } = context.repo;
             const issue_number = context.issue.number;
+            const labels = context.payload.issue.labels?.map((label) => label.name) ?? [];
+
+            if (labels.includes('announcement')) {
+              core.info('Announcement issue. Skipping triage response.');
+              return;
+            }
 
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner,
