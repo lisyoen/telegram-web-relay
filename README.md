@@ -2,76 +2,121 @@
 
 English | [한국어](./README.ko.md)
 
-A self-hosted relay server that lets you use a Telegram web client from networks where the public Telegram API endpoints are blocked.
+Self-hosted Telegram Web relay powered by TDLib. Run Telegram connectivity on a server you control, then use a browser UI that talks only to your relay over HTTP and Socket.IO.
 
-`telegram-web-relay` connects to Telegram on the **server side** using [TDLib](https://core.telegram.org/tdlib) (via the `tdl` and `prebuilt-tdlib` packages) and exposes that session to a browser over HTTP and [Socket.IO](https://socket.io/). The browser never talks to Telegram directly — all MTProto traffic terminates on the host you control — so the client keeps working from any network that can reach your relay, even when `*.telegram.org` is unreachable.
+This repository is the **server**. The browser UI lives in [telegram-web-relay-client](https://github.com/lisyoen/telegram-web-relay-client).
 
-The browser front-end lives in a separate repository: **[telegram-web-relay-client](https://github.com/lisyoen/telegram-web-relay-client)**.
+## What It Does
 
-## Why
-
-Some corporate, campus, or national firewalls block the Telegram API endpoints, which stops the official web and desktop clients from connecting. Running this relay on a reachable machine moves the Telegram connection to the server side, so an ordinary browser can reach Telegram through your own infrastructure — no client-side proxy or VPN required.
-
-## Architecture
+`telegram-web-relay` signs in to Telegram on the server side with [TDLib](https://core.telegram.org/tdlib), keeps the authenticated session on that host, and exposes a browser-friendly Socket.IO API to the web client.
 
 ```
-Browser  --HTTP + Socket.IO-->  telegram-web-relay (this repo, MIT)
-                                        |
-                                        v
-                                TDLib (tdl / prebuilt-tdlib)
-                                        |
-                                        v
-                                Telegram servers (MTProto)
+Browser UI  --HTTP + Socket.IO-->  telegram-web-relay  --TDLib/MTProto-->  Telegram
 ```
 
-- **This repo (server, MIT):** a Node.js process (`server.js`) built on Express, `express-session`, Socket.IO, and `better-sqlite3`. It owns the TDLib client, holds the authenticated session, and relays updates to and from the browser.
-- **Client (GPL-3.0-or-later):** [telegram-web-relay-client](https://github.com/lisyoen/telegram-web-relay-client), a fork of [Telegram-tt](https://github.com/Ajaxy/telegram-tt) rewritten to speak to this relay over Socket.IO instead of connecting to Telegram itself.
-- The two pieces communicate **at arm's length** over a Socket.IO contract. The server serves the built client: point `V2_DIST_PATH` at the client's `dist/` output and the relay serves it as the web UI.
+This is useful when you want a self-hosted Telegram Web experience where the browser does not need to connect to Telegram API endpoints directly. The relay host owns the Telegram session, static assets, file downloads, update stream, and optional chat archive.
 
-The server and the client are **separate processes under separate licenses** (MIT for the server, GPL-3.0-or-later for the client). They interoperate over the network only; neither is linked into the other.
+## Repository Split
 
-## Requirements
+| Repository | Role | License |
+| --- | --- | --- |
+| `telegram-web-relay` | Node.js TDLib relay server, static host for the web UI | MIT |
+| [`telegram-web-relay-client`](https://github.com/lisyoen/telegram-web-relay-client) | Telegram Web A / Telegram-tt fork rewritten to use this relay over Socket.IO | GPL-3.0-or-later |
 
-- Node.js — the `tdl` / `prebuilt-tdlib` and `better-sqlite3` native modules must match your Node ABI, so build and run with the same Node version.
-- A Telegram **API ID** and **API hash** from [my.telegram.org](https://my.telegram.org).
+The two projects are separate processes under separate licenses. They communicate over the network only.
 
-## Setup
+## Quickstart
 
-1. Install dependencies:
-   ```sh
-   npm install
-   ```
-2. Obtain an API ID / API hash from [my.telegram.org](https://my.telegram.org).
-3. Configure with either a `.env` file or the PM2 ecosystem config:
-   - **`.env`:** copy `.env.example` to `.env` and fill in `TELEGRAM_API_ID` / `TELEGRAM_API_HASH`.
-   - **PM2:** copy `ecosystem.config.example` to `ecosystem.config.js` and fill in the same values.
-4. Build the front-end (see [telegram-web-relay-client](https://github.com/lisyoen/telegram-web-relay-client)) and point `V2_DIST_PATH` at its `dist/` directory.
-5. Start the server:
-   ```sh
-   npm start
-   ```
-   or under PM2:
-   ```sh
-   pm2 start ecosystem.config.js
-   ```
-6. Open the relay in a browser (default `http://<host>:9087`) and log in with your Telegram account.
+### 1. Build the Client
+
+```sh
+git clone https://github.com/lisyoen/telegram-web-relay-client.git
+cd telegram-web-relay-client
+cp .env.example .env
+npm install
+npm run build:production
+```
+
+The client build is written to `telegram-web-relay-client/dist`.
+
+### 2. Start the Relay
+
+```sh
+git clone https://github.com/lisyoen/telegram-web-relay.git
+cd telegram-web-relay
+cp .env.example .env
+npm install
+npm start
+```
+
+Edit `.env` before starting:
+
+```env
+TELEGRAM_API_ID=123456
+TELEGRAM_API_HASH=your_api_hash
+SESSION_SECRET=replace-this
+PORT=9087
+V2_DIST_PATH=../telegram-web-relay-client/dist
+```
+
+Open `http://localhost:9087` and sign in with your Telegram account.
+
+## Docker Compose Example
+
+Build the client first, then run the relay container with the client `dist/` mounted:
+
+```sh
+cd telegram-web-relay-client
+cp .env.example .env
+npm install
+npm run build:production
+
+cd ../telegram-web-relay
+cp .env.example .env
+docker compose -f docker-compose.example.yml up --build
+```
+
+The compose file is intentionally an example. For production, use a real `SESSION_SECRET`, persistent TDLib/database volumes, HTTPS, and a reverse proxy that supports your deployment model.
 
 ## Configuration
 
-All settings are environment variables (see `.env.example`):
+All settings are environment variables.
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `TELEGRAM_API_ID` | yes | Telegram API ID from my.telegram.org |
-| `TELEGRAM_API_HASH` | yes | Telegram API hash from my.telegram.org |
-| `PORT` | no | HTTP port (default `9087`) |
-| `V2_DIST_PATH` | no | Path to the built client `dist/` (for example `../telegram-web-relay-client/dist`) |
-| `V1_HOST` | no | If set and the request host matches, serve the legacy static UI in `public/`; otherwise the modern client is always served |
-| `ARCHIVE_DB_PATH` | no | SQLite path for the chat archive (defaults to `./db/chat-archive.sqlite`, created at runtime) |
-| `TARGET_CHATS` / `MAIN_CHATS` | no | Comma-separated chat IDs for optional target / main-chat features; empty disables them |
+| Variable | Required | Default | Description |
+| --- | --- | --- | --- |
+| `TELEGRAM_API_ID` | yes | empty | Telegram API ID from my.telegram.org |
+| `TELEGRAM_API_HASH` | yes | empty | Telegram API hash from my.telegram.org |
+| `SESSION_SECRET` | recommended | development fallback | Express session cookie secret |
+| `PORT` | no | `9087` | HTTP port |
+| `V2_DIST_PATH` | no | `../telegram-web-relay-client/dist` | Built client `dist/` path |
+| `V1_HOST` | no | empty | If set and the request host matches, serve the legacy static UI in `public/` |
+| `ARCHIVE_DB_PATH` | no | `./db/chat-archive.sqlite` | SQLite path for optional chat archive |
+| `TARGET_CHATS` | no | empty | Comma-separated chat IDs for optional archive collection |
+| `MAIN_CHATS` | no | empty | Comma-separated chat IDs for optional main-chat features |
+
+## Security Notes
+
+- The relay owns the authenticated Telegram session. Protect it like any other private messaging backend.
+- Do not expose a production relay without HTTPS, access control, and a strong `SESSION_SECRET`.
+- TDLib database and downloaded files may contain private account data. Persist and back them up carefully, or delete them deliberately.
+- This project is for self-hosted access to your own Telegram account/session. You are responsible for complying with Telegram's terms and your local rules.
+
+## Development
+
+```sh
+npm install
+npm start
+```
+
+Native modules such as `better-sqlite3`, `tdl`, and `prebuilt-tdlib` must match your Node.js ABI. Build and run with the same Node version, especially under PM2.
+
+## Launch Materials
+
+- Release note draft: [docs/release-v0.1.0.md](./docs/release-v0.1.0.md)
+- Launch post drafts: [docs/launch-kit.md](./docs/launch-kit.md)
 
 ## License
 
 [MIT](./LICENSE) (c) ChangYeon Lee.
 
-The browser client is a separate project under GPL-3.0-or-later. See [telegram-web-relay-client](https://github.com/lisyoen/telegram-web-relay-client).
+The browser client is a separate GPL-3.0-or-later project. See [telegram-web-relay-client](https://github.com/lisyoen/telegram-web-relay-client).

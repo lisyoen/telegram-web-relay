@@ -1,0 +1,17 @@
+services:
+  telegram-web-relay:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - "9087:9087"
+    volumes:
+      - ./tdlib-db:/app/tdlib-db
+      - ./tdlib-files:/app/tdlib-files
+      - ./db:/app/db
+      - ../telegram-web-relay-client/dist:/client-dist:ro
+    environment:
+      PORT: 9087
+      V2_DIST_PATH: /client-dist
+    restart: unless-stopped

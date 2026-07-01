@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -60,7 +62,7 @@ function _flushHeld(key, msgId) {
   else heldChatUpdates.delete(key);
 }
 
-const PORT = process.env.PORT || 9071;
+const PORT = process.env.PORT || 9087;
 
 // v0.4: MIME 타입 헬퍼
 function getMimeType(fileName) {
@@ -983,7 +985,7 @@ async function ensurePhotoFileIds(message) {
 
 // 세션 설정
 app.use(session({
-  secret: 'telegram-web-secret-key',
+  secret: process.env.SESSION_SECRET || 'telegram-web-relay-dev-secret-change-me',
   resave: false,
   saveUninitialized: true
 }));
