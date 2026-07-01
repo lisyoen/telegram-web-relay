@@ -120,6 +120,11 @@ npm start
 
 - 릴리스 노트 초안: [docs/release-v0.1.0.md](./docs/release-v0.1.0.md)
 - 홍보문 초안: [docs/launch-kit.md](./docs/launch-kit.md)
+- 이슈 봇 가이드: [docs/issue-bot.md](./docs/issue-bot.md)
+
+## 이슈 봇
+
+새 이슈가 열리면 자동으로 한/영 triage 댓글을 남기고 `needs-triage` 라벨을 붙입니다. 관리자는 향후 AI 코딩 에이전트가 처리하기 좋은 이슈에 `ai-candidate` 라벨을 붙일 수 있습니다.
 
 ## 라이선스
 

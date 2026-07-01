@@ -120,6 +120,11 @@ Native modules such as `better-sqlite3`, `tdl`, and `prebuilt-tdlib` must match 
 
 - Release note draft: [docs/release-v0.1.0.md](./docs/release-v0.1.0.md)
 - Launch post drafts: [docs/launch-kit.md](./docs/launch-kit.md)
+- Issue bot guide: [docs/issue-bot.md](./docs/issue-bot.md)
+
+## Issue Bot
+
+New issues receive an automated bilingual triage response and the `needs-triage` label. Maintainers can add `ai-candidate` when an issue is suitable for a future AI coding-agent workflow.
 
 ## License
 

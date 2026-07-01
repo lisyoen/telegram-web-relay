@@ -1,0 +1,32 @@
+name: Feature request / 기능 제안
+description: Suggest an improvement. / 개선 아이디어를 제안합니다.
+title: "Feature: "
+labels:
+  - enhancement
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement.
+
+        개선 아이디어를 제안해줘서 고마워요.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / 해결하려는 문제
+      description: What user problem would this solve? / 어떤 사용자 문제를 해결하나요?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution / 제안하는 해결책
+      description: Describe the behavior you want. / 원하는 동작을 설명해주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered / 검토한 대안
+      description: Optional. / 선택 사항입니다.

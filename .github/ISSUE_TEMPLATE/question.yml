@@ -1,0 +1,19 @@
+name: Question / 질문
+description: Ask a usage or setup question. / 사용법이나 설치 질문을 남깁니다.
+title: "Question: "
+labels:
+  - question
+  - needs-triage
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question / 질문
+      description: What would you like to know? / 무엇이 궁금한가요?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context / 배경
+      description: Share setup details or links if useful. / 도움이 되는 실행 환경이나 링크가 있으면 적어주세요.

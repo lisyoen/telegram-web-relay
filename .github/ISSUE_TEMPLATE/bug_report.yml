@@ -1,0 +1,49 @@
+name: Bug report / 버그 제보
+description: Report a reproducible bug. / 재현 가능한 버그를 제보합니다.
+title: "Bug: "
+labels:
+  - bug
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug.
+
+        버그를 제보해줘서 고마워요. 가능한 한 재현 가능한 형태로 적어주세요.
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior / 기대한 동작
+      description: What did you expect to happen? / 어떤 동작을 기대했나요?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior / 실제 동작
+      description: What happened instead? / 실제로는 어떻게 동작했나요?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps / 재현 절차
+      description: List the shortest steps to reproduce the issue. / 문제를 재현하는 가장 짧은 절차를 적어주세요.
+      placeholder: |
+        1. Start the relay with ...
+        2. Open the client at ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment / 실행 환경
+      description: Node.js, Docker, OS, TDLib, browser, and any relevant configuration. / Node.js, Docker, OS, TDLib, 브라우저, 관련 설정을 적어주세요.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots / 로그 또는 스크린샷
+      description: Paste relevant logs. Remove secrets before posting. / 관련 로그를 붙여주세요. 공개 전에 secret은 지워주세요.
+      render: shell
