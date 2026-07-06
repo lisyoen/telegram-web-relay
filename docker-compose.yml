@@ -1,0 +1,14 @@
+services:
+  telegram-web-relay:
+    build: .
+    env_file: .env
+    ports:
+      - "9087:9087"
+    volumes:
+      - ./data/tdlib-db:/app/tdlib-db
+      - ./data/tdlib-files:/app/tdlib-files
+      - ./data/db:/app/db
+      # To serve a prebuilt v2 client, mount its dist directory and set:
+      # - ./client-dist:/app/client-dist:ro
+      # V2_DIST_PATH=/app/client-dist
+    restart: unless-stopped

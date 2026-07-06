@@ -31,6 +31,33 @@ This is useful when you want a self-hosted Telegram Web experience where the bro
 
 The two projects are separate processes under separate licenses. They communicate over the network only.
 
+## Run with Docker
+
+```sh
+git clone https://github.com/lisyoen/telegram-web-relay.git
+cd telegram-web-relay
+cp .env.example .env
+```
+
+Edit `.env` with your Telegram API credentials from my.telegram.org:
+
+```env
+TELEGRAM_API_ID=123456
+TELEGRAM_API_HASH=your_api_hash
+SESSION_SECRET=replace-this
+PORT=9087
+```
+
+Start the relay:
+
+```sh
+docker compose up -d
+```
+
+Open `http://localhost:9087` in your browser. TDLib session data, downloaded files, and the optional archive database are persisted under `./data/`.
+
+To serve a prebuilt v2 client, copy or mount its `dist/` directory as `./client-dist` and set `V2_DIST_PATH=/app/client-dist` in `.env`; `docker-compose.yml` includes the matching commented volume line.
+
 ## Quickstart
 
 ### 1. Build the Client
@@ -66,23 +93,6 @@ V2_DIST_PATH=../telegram-web-relay-client/dist
 ```
 
 Open `http://localhost:9087` and sign in with your Telegram account.
-
-## Docker Compose Example
-
-Build the client first, then run the relay container with the client `dist/` mounted:
-
-```sh
-cd telegram-web-relay-client
-cp .env.example .env
-npm install
-npm run build:production
-
-cd ../telegram-web-relay
-cp .env.example .env
-docker compose -f docker-compose.example.yml up --build
-```
-
-The compose file is intentionally an example. For production, use a real `SESSION_SECRET`, persistent TDLib/database volumes, HTTPS, and a reverse proxy that supports your deployment model.
 
 ## Configuration
 

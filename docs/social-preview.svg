@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">telegram-web-relay</title>
+  <desc id="desc">Self-hosted Telegram Web relay architecture preview</desc>
+  <rect width="1280" height="640" fill="#0e1621"/>
+  <circle cx="1130" cy="90" r="220" fill="#229ed9" opacity="0.13"/>
+  <circle cx="110" cy="590" r="250" fill="#4ade80" opacity="0.08"/>
+
+  <g font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <text x="92" y="244" fill="#f8fafc" font-size="68" font-weight="760">telegram-web-relay</text>
+    <text x="96" y="312" fill="#9fb4c8" font-size="30" font-weight="500">Self-hosted Telegram Web relay (TDLib)</text>
+    <text x="96" y="374" fill="#5f7890" font-size="22">Browser stays on your relay. TDLib connects from your server.</text>
+
+    <g transform="translate(690 205)">
+      <rect x="0" y="0" width="170" height="94" rx="12" fill="#132333" stroke="#29445c" stroke-width="2"/>
+      <text x="85" y="57" text-anchor="middle" fill="#e2edf7" font-size="25" font-weight="700">Browser</text>
+
+      <text x="199" y="57" text-anchor="middle" fill="#55b7e9" font-size="34" font-weight="700">&#8594;</text>
+
+      <rect x="230" y="0" width="170" height="94" rx="12" fill="#123043" stroke="#2f81ad" stroke-width="2"/>
+      <text x="315" y="57" text-anchor="middle" fill="#f8fafc" font-size="25" font-weight="750">Relay</text>
+
+      <text x="429" y="57" text-anchor="middle" fill="#55b7e9" font-size="34" font-weight="700">&#8594;</text>
+
+      <rect x="460" y="0" width="170" height="94" rx="12" fill="#132333" stroke="#29445c" stroke-width="2"/>
+      <text x="545" y="57" text-anchor="middle" fill="#e2edf7" font-size="25" font-weight="700">Telegram</text>
+
+      <text x="85" y="142" text-anchor="middle" fill="#6f879d" font-size="17">HTTP + Socket.IO</text>
+      <text x="315" y="142" text-anchor="middle" fill="#6f879d" font-size="17">Node.js + TDLib</text>
+      <text x="545" y="142" text-anchor="middle" fill="#6f879d" font-size="17">MTProto</text>
+    </g>
+  </g>
+</svg>

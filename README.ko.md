@@ -31,6 +31,33 @@ TDLib 기반 self-hosted Telegram Web relay입니다. 텔레그램 연결은 사
 
 두 프로젝트는 서로 다른 라이선스를 가진 별도 프로세스이며, 네트워크를 통해서만 통신합니다.
 
+## Docker로 실행
+
+```sh
+git clone https://github.com/lisyoen/telegram-web-relay.git
+cd telegram-web-relay
+cp .env.example .env
+```
+
+my.telegram.org에서 발급한 Telegram API 자격증명을 `.env`에 입력합니다.
+
+```env
+TELEGRAM_API_ID=123456
+TELEGRAM_API_HASH=your_api_hash
+SESSION_SECRET=replace-this
+PORT=9087
+```
+
+Relay를 실행합니다.
+
+```sh
+docker compose up -d
+```
+
+브라우저에서 `http://localhost:9087`을 엽니다. TDLib 세션 데이터, 다운로드 파일, 선택적 아카이브 DB는 `./data/` 아래에 보관됩니다.
+
+빌드된 v2 클라이언트를 서빙하려면 `dist/` 디렉터리를 `./client-dist`로 복사하거나 마운트하고, `.env`에 `V2_DIST_PATH=/app/client-dist`를 설정하십시오. `docker-compose.yml`에 대응되는 볼륨 예시가 주석으로 포함되어 있습니다.
+
 ## 빠른 시작
 
 ### 1. 클라이언트 빌드
@@ -66,23 +93,6 @@ V2_DIST_PATH=../telegram-web-relay-client/dist
 ```
 
 브라우저에서 `http://localhost:9087`을 열고 텔레그램 계정으로 로그인합니다.
-
-## Docker Compose 예시
-
-먼저 클라이언트를 빌드한 뒤, 생성된 `dist/`를 relay 컨테이너에 마운트합니다.
-
-```sh
-cd telegram-web-relay-client
-cp .env.example .env
-npm install
-npm run build:production
-
-cd ../telegram-web-relay
-cp .env.example .env
-docker compose -f docker-compose.example.yml up --build
-```
-
-제공된 compose 파일은 예시입니다. 운영 환경에서는 강한 `SESSION_SECRET`, 영구 TDLib/DB 볼륨, HTTPS, 배포 환경에 맞는 reverse proxy 구성이 필요합니다.
 
 ## 설정
 
