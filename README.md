@@ -137,6 +137,7 @@ Native modules such as `better-sqlite3`, `tdl`, and `prebuilt-tdlib` must match 
 - Release note draft: [docs/release-v0.1.0.md](./docs/release-v0.1.0.md)
 - Launch post drafts: [docs/launch-kit.md](./docs/launch-kit.md)
 - Issue bot guide: [docs/issue-bot.md](./docs/issue-bot.md)
+- Reverse proxy examples: [docs/reverse-proxy.md](./docs/reverse-proxy.md)
 
 ## Issue Bot
 
