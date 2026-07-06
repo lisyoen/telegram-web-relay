@@ -12,6 +12,12 @@ This repository is the **server**. The browser UI lives in [telegram-web-relay-c
 
 ![telegram-web-relay architecture](./docs/architecture.svg)
 
+## Screenshots
+
+![Saved Messages demo, Korean UI](./docs/screenshots/chat.png)
+
+Saved Messages demo, Korean UI.
+
 ## What It Does
 
 `telegram-web-relay` signs in to Telegram on the server side with [TDLib](https://core.telegram.org/tdlib), keeps the authenticated session on that host, and exposes a browser-friendly Socket.IO API to the web client.
